@@ -1,8 +1,9 @@
 <?php
+define("MAX_DEPTH", 7);//Takes about 1.5-2 seconds
 class FindMove{
 	private $a, $b;
 	private $bestMove = NULL;//integer 0-6
-	private $MAX_DEPTH = 2;
+	private $ref = array();//Map between column and current index of space (so if column i is empty, ref[i] = 6
 
 	public function __construct($a){
 		$this->a = $a;
@@ -29,7 +30,7 @@ class FindMove{
 			}
 			//apply move, calculate the max for the next state
 			$this->doMove($board, $i, $this->b);
-			$val = $this->max($board, $i, $depth+1);
+			$val = $this->max($board, $depth+1);
 			$this->undoMove($board, $i, $this->b);
 			if($min == NULL || $val < $min){
 				$min = $val;
@@ -57,7 +58,7 @@ class FindMove{
 			}
 			//apply move, calculate the min for this state
 			$this->doMove($board, $i, $this->a);
-			$val = $this->min($board, $i, $depth+1);
+			$val = $this->min($board, $depth+1);
 			$this->undoMove($board, $i, $this->a);
 			if($max == NULL || $val > $max){
 				$max = $val;
@@ -75,28 +76,18 @@ class FindMove{
 
 	//helpers
 	private function doMove(&$board, $i, $player){
-		for($j = 6; $j >= 0; $j--){
-			if($board[$j][$i] == 0){
-				$board[$j][$i] = $player;
-				return;
-			}
+		if($this->ref[$i] < 0){
+			throw new Exception("Cannot make move");
 		}
-		$this->printBoard($board);
-		throw new Exception("Cannot make move");
+		$board[$this->ref[$i]][$i] = $player;
+		$this->ref[$i] = $this->ref[$i] - 1;
 	}
 	private function undoMove(&$board, $i, $player){
-		for($j = 0; $j < 7; $j++){
-			if($board[$j][$i] != 0){
-				if($board[$j][$i] != $player){
-					throw new Exception("Cannot undo move, unexpected player");
-				}
-				else{
-					$board[$j][$i] = 0;
-					return;
-				}
-			}
+		if($this->ref[$i] > 6 || $board[$this->ref[$i]+1][$i] != $player){
+			throw new Exception("Cannot undo move, unexpected player");
 		}
-
+		$board[$this->ref[$i]+1][$i] = 0;
+		$this->ref[$i] = $this->ref[$i] + 1;
 	}
 	//Return a score from a x's perspective
 	public function score(&$board){
@@ -105,6 +96,15 @@ class FindMove{
 	public function findMove(&$board){
 		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
 			throw new InvalidArgumentException("Board must be 7x7");	
+		}
+		//set up ref (gives index of current top space)
+		for($j = 0; $j < 7; $j++){
+			for($i = 6; $i >= 0; $i--){
+				if($board[$i][$j] == 0){
+					$this->ref[$j] = $i;
+					break;
+				}
+			}
 		}
 		//given a 2d array, calculate the best possible move
 		$this->max($board, 0);
@@ -120,7 +120,7 @@ class FindMove{
 	}
 }
 
-
+$start = microtime(true);
 $ex = array(
 	array(0, 0, 0, 0, 0, 0, 0),
 	array(0, 0, 0, 0, 0, 0, 0),
@@ -133,4 +133,6 @@ $ex = array(
 $mover = new FindMove(1);
 $move = $mover->findMove($ex);
 printf("Best move is %d\n", $move);
+$end = microtime(true);
+printf("Time taken : %f\n", $end-$start);
 ?>
