@@ -91,6 +91,30 @@ class FindMove{
 	}
 	//Return a score from a x's perspective
 	public function score(&$board){
+		//count number of possible ways to win, place very high value on 2 possibilities to win in 1 move, place highest value on winning
+		$score = 0;
+		//go down each column, count number of longest path at top
+		for($j = 0; $j < 7; $j++){
+			if($this->ref[$j] >= 0){
+				$pathLength = 0;
+				for($i = $this->ref[$j], $i >= 0; $i--){
+					if($board[$i][$j] == $this->a){
+						$pathLength++;
+					}
+					else{
+						break;
+					}
+				}
+				if(4 - $pathLength < (7 - $this->ref[$i])){
+					//if # needed is less than # left, no help to us
+				}
+				else{
+					$score += $pathLengh;//longer path is better, scale this by a weight (possibly by using ml)
+				}
+			}
+		}
+		//go through each row, count # of possible wins
+
 		return rand();//should be fine, it'll just always select the first move for now
 	}
 	public function findMove(&$board){
