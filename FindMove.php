@@ -216,7 +216,7 @@ class FindMove{
 		}
 		//go through rows
 		for($i = 0; $i < 7; $i++){
-			//$score += $this->scorePaths($board, $i, 0, 0, 1);
+			$score += $this->scorePaths($board, $i, 0, 0, 1);
 		}
 		//go through the diagonals
 		for($i = 3; $i < 7; $i++){
@@ -267,12 +267,12 @@ $ex = array(
 	array(0, 0, 0, 0, 0, 0, 0),
 	array(0, 0, 0, 0, 0, 0, 0),
 	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 1, 0, 0, 0),
-	array(0, 1, 1, 2, 2, 0, 2)
+	array(0, 0, 0, 0, 1, 0, 0),
+	array(0, 0, 0, 0, 2, 0, 0),
+	array(0, 0, 0, 0, 2, 0, 0),
+	array(0, 0, 0, 0, 2, 0, 0)
 );
-$mover = new FindMove(2);
+$mover = new FindMove(2);//says best move is 4??
 //printf("Score is %d\n" , $mover->score($ex));
 $move = $mover->findMove($ex);
 printf("Best move is %d\n", $move);
