@@ -1,5 +1,6 @@
 <?php
-define("MAX_DEPTH", 5);//Takes about 1.5-2 seconds
+define("MAX_DEPTH", 6);//Takes about 1.5-2 seconds
+define("DEBUG", 1);
 class FindMove{
 	private $a, $b;
 	private $bestMove = NULL;//integer 0-6
@@ -24,6 +25,7 @@ class FindMove{
 			return $this->score($board);
 		}
 		$min = NULL;
+		$won = false;
 		for($i = 0; $i < 7; $i++){
 			if($board[0][$i] != 0){
 				//entire column filled
@@ -31,10 +33,19 @@ class FindMove{
 			}
 			//apply move, calculate the max for the next state
 			$this->doMove($board, $i, $this->b);
-			$val = $this->max($board, $depth+1);
+			if($this->hasWon($board, $i, $this->b)){
+				$val = -10000;
+				$won = true;
+			}
+			else{
+				$val = $this->max($board, $depth+1);
+			}
 			$this->undoMove($board, $i, $this->b);
 			if($min == NULL || $val < $min){
 				$min = $val;
+			}
+			if($won){
+				break;
 			}
 		}
 		if($min == NULL){
@@ -52,6 +63,7 @@ class FindMove{
 			return $this->score($board);
 		}
 		$max = NULL;
+		$won = false;
 		for($i = 0; $i < 7; $i++){
 			if($board[0][$i] != 0){
 				//entire column filled
@@ -59,14 +71,22 @@ class FindMove{
 			}
 			//apply move, calculate the min for this state
 			$this->doMove($board, $i, $this->a);
-			$val = $this->min($board, $depth+1);
-			//printf("move %d, score %d\n", $i, $val);
+			if($this->hasWon($board, $i, $this->a)){
+				$val = 10000;
+				$won = true;
+			}
+			else{
+				$val = $this->min($board, $depth+1);
+			}
 			//$this->printBoard($board);
 			$this->undoMove($board, $i, $this->a);
 			if($max == NULL || $val > $max){
 				$max = $val;
-				$this->bestMove = $i;//this should be fine since the first called function will reach this last
+				if($depth == 0){
+					$this->bestMove = $i;//only interested in the actual best move for depth 0
+				}
 			}
+			if($won){ break; }
 		}
 		if($max == NULL){
 			//there were no moves
@@ -91,6 +111,102 @@ class FindMove{
 		}
 		$board[$this->ref[$i]+1][$i] = 0;
 		$this->ref[$i] = $this->ref[$i] + 1;
+	}
+	//i is the column of the move just made, so ref[i] points just above
+	private function hasWon(&$board, $jStart, $player){
+		$iStart = $this->ref[$jStart] + 1;
+		//check horizontal
+		$hCount = 1;
+		$i = $iStart;
+		$j = $jStart-1;
+		while($j >= 0){
+			if($board[$i][$j] == $player){
+				$hCount++;
+			}	
+			else{break;}
+			$j--;
+		}
+		$j = $jStart+1;
+		while($j < 7){
+			if($board[$i][$j] == $player){
+				$hCount++;
+			}	
+			else{break;}
+			$j++;
+		}
+		//check vertical
+		$vCount = 1;
+		$i = $iStart-1;
+		$j = $jStart;
+		while($i >= 0){
+			if($board[$i][$j] == $player){
+				$vCount++;
+			}	
+			else{break;}
+			$i--;
+		}
+		$i = $iStart+1;
+		while($i < 7){
+			if($board[$i][$j] == $player){
+				$vCount++;
+			}	
+			else{break;}
+			$i++;
+		}
+		//check diagonal bl-tr
+		$d1Count = 1;
+		$i = $iStart-1;
+		$j = $jStart+1;
+		while($i >= 0 && $j < 7){
+			if($board[$i][$j] == $player){
+				$d1Count++;
+			}	
+			else{break;}
+			$i--;
+			$j++;
+		}
+		$i = $iStart+1;
+		$j = $jStart-1;
+		while($i < 7 && $j >= 0){
+			if($board[$i][$j] == $player){
+				$d1Count++;
+			}	
+			else{break;}
+			$i++;
+			$j--;
+		}
+		//check diagonal br-tl
+		$d2Count = 1;
+		$i = $iStart-1;
+		$j = $jStart-1;
+		while($i >= 0 && $j >= 0){
+			if($board[$i][$j] == $player){
+				$d2Count++;
+			}	
+			else{break;}
+			$i--;
+			$j--;
+		}
+		$i = $iStart+1;
+		$j = $jStart+1;
+		while($i < 7 && $j < 7){
+			if($board[$i][$j] == $player){
+				$d2Count++;
+			}	
+			else{break;}
+			$i++;
+			$j++;
+		}
+		//$this->printBoard($board);
+		//printf("h: %d, v: %d, d1: %d, d2: %d\n", $hCount, $vCount, $d1Count, $d2Count);
+		if($hCount >= 4 || $vCount >= 4 || $d1Count >= 4 || $d2Count >= 4){
+			//printf("Player %d can win\n", $player);
+			return true;
+		}
+		else{
+			return false;
+		}
+
 	}
 	private function scoreDiff(&$board, $i, $j, $player){
 
@@ -239,6 +355,7 @@ class FindMove{
 		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
 			throw new InvalidArgumentException("Board must be 7x7");	
 		}
+		$this->ref = array(-1,-1,-1,-1,-1,-1,-1);
 		//set up ref (gives index of current top space)
 		for($j = 0; $j < 7; $j++){
 			for($i = 6; $i >= 0; $i--){
@@ -264,13 +381,13 @@ class FindMove{
 
 $start = microtime(true);
 $ex = array(
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 1, 0, 0),
-	array(0, 0, 0, 0, 2, 0, 0),
-	array(0, 0, 0, 0, 2, 0, 0),
-	array(0, 0, 0, 0, 2, 0, 0)
+	array(2, 2, 0, 0, 0, 0, 0),
+	array(2, 1, 1, 0, 2, 0, 0),
+	array(2, 1, 2, 0, 2, 2, 0),
+	array(1, 1, 2, 0, 1, 2, 2),
+	array(2, 2, 1, 0, 2, 1, 1),
+	array(2, 1, 1, 0, 2, 1, 1),
+	array(2, 1, 1, 1, 2, 1, 1)
 );
 $mover = new FindMove(2);//says best move is 4??
 //printf("Score is %d\n" , $mover->score($ex));
