@@ -20,13 +20,12 @@ class FindMove{
 		}
 	}
 
-	private function min(&$board, $depth){
-		if($depth >= MAX_DEPTH){
-			return $this->score($board);
-		}
+	private function min(&$board, $depth, $alpha, $beta, $usePruning){
 		$min = NULL;
 		$won = false;
+		$beta = INF;
 		for($i = 0; $i < 7; $i++){
+			//printf("Min d%d, a%d, b%d\n", $depth, $alpha, $beta);
 			if($board[0][$i] != 0){
 				//entire column filled
 				continue;
@@ -37,15 +36,24 @@ class FindMove{
 				$val = -10000;
 				$won = true;
 			}
+			else if($depth+1 >= MAX_DEPTH){
+				$val = $this->score($board);
+			}
 			else{
-				$val = $this->max($board, $depth+1);
+				$val = $this->max($board, $depth+1, $alpha, $beta, $usePruning);
 			}
 			$this->undoMove($board, $i, $this->b);
 			if($min == NULL || $val < $min){
 				$min = $val;
+				$beta = $val;
 			}
 			if($won){
 				break;
+			}
+			if($usePruning && $beta < $alpha){
+				//then this parent will have a smaller value then the current best alpha, no chance
+				//printf("Min cut d%d, a%d, b%d\n", $depth, $alpha, $beta);
+				return $beta;
 			}
 		}
 		if($min == NULL){
@@ -58,13 +66,12 @@ class FindMove{
 	}
 	//board must be passed by reference, apparently PHP copies arrays by default :/
 	//Goes through all player a's options, returns the maximum value (of the mins of those options)
-	private function max(&$board, $depth){
-		if($depth >= MAX_DEPTH){
-			return $this->score($board);
-		}
+	private function max(&$board, $depth, $alpha, $beta, $usePruning){
 		$max = NULL;
 		$won = false;
+		$alpha = -1 * INF; //we want to set the alpha on this level, not based on previous alpha
 		for($i = 0; $i < 7; $i++){
+			//printf("Max d%d, a%d, b%d\n", $depth, $alpha, $beta);
 			if($board[0][$i] != 0){
 				//entire column filled
 				continue;
@@ -75,18 +82,30 @@ class FindMove{
 				$val = 10000;
 				$won = true;
 			}
+			else if($depth+1 >= MAX_DEPTH){
+				$val = $this->score($board);
+			}
 			else{
-				$val = $this->min($board, $depth+1);
+				$val = $this->min($board, $depth+1, $alpha, $beta, $usePruning);
 			}
 			//$this->printBoard($board);
 			$this->undoMove($board, $i, $this->a);
 			if($max == NULL || $val > $max){
 				$max = $val;
+				$alpha = $val;
 				if($depth == 0){
 					$this->bestMove = $i;//only interested in the actual best move for depth 0
 				}
 			}
 			if($won){ break; }
+			if($usePruning && $alpha > $beta && $depth != 0){
+				//the current max val is > then parent level beta, so no way will parent be chosen
+				//printf("Max cut d%d, a%d, b%d\n", $depth, $alpha, $beta);
+				return $alpha;
+			}
+			if($depth == 0){
+				printf("value: %d, %d\n", $val, $i);
+			}
 		}
 		if($max == NULL){
 			//there were no moves
@@ -351,7 +370,7 @@ class FindMove{
 
 		return $score;//should be fine, it'll just always select the first move for now
 	}
-	public function findMove(&$board){
+	public function findMove(&$board, $usePruning){
 		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
 			throw new InvalidArgumentException("Board must be 7x7");	
 		}
@@ -366,7 +385,7 @@ class FindMove{
 			}
 		}
 		//given a 2d array, calculate the best possible move
-		$this->max($board, 0);
+		$this->max($board, 0, 0, 0, $usePruning);
 		return $this->bestMove;
 	}
 	public function printBoard(&$board){
@@ -381,17 +400,20 @@ class FindMove{
 
 $start = microtime(true);
 $ex = array(
-	array(2, 2, 0, 0, 0, 0, 0),
-	array(2, 1, 1, 0, 2, 0, 0),
-	array(2, 1, 2, 0, 2, 2, 0),
-	array(1, 1, 2, 0, 1, 2, 2),
-	array(2, 2, 1, 0, 2, 1, 1),
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 2, 1, 0),
+	array(0, 0, 2, 0, 1, 2, 2),
+	array(1, 2, 1, 0, 2, 1, 1),
 	array(2, 1, 1, 0, 2, 1, 1),
 	array(2, 1, 1, 1, 2, 1, 1)
 );
 $mover = new FindMove(2);//says best move is 4??
 //printf("Score is %d\n" , $mover->score($ex));
-$move = $mover->findMove($ex);
+$move = $mover->findMove($ex, false);
+printf("Best move is %d\n", $move);
+printf("==========\n");
+//$move = $mover->findMove($ex, false);
 printf("Best move is %d\n", $move);
 $end = microtime(true);
 printf("Time taken : %f\n", $end-$start);
