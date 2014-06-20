@@ -1,24 +1,20 @@
 <?php
 define("MAX_DEPTH", 6);//Takes about 1.5-2 seconds
 define("DEBUG", 1);
-class FindMove{
+class C4AI{
 	private $a, $b;
 	private $bestMove = NULL;//integer 0-6
 	private $ref = array();//Map between column and current index of top SPACE (so if column i is empty, ref[i] = 6
 	private $score = 0;
-
-	public function __construct($a){
-		$this->a = $a;
-		if($this->a != 1 && $this->a != 2){
-			throw new Exception("Player should be integer, 1 or 2");
+	private static $instance = NULL;
+	private function __construct(){}
+	public static function getInstance(){
+		if(C4AI::$instance == NULL){
+			C4AI::$instance = new C4AI();
 		}
-		if($this->a == 1){
-			$this->b = 2;
-		}
-		else{
-			$this->b = 1;
-		}
+		return C4AI::$instance;
 	}
+
 
 	private function min(&$board, $depth, $alpha, $beta, $usePruning){
 		$min = NULL;
@@ -104,7 +100,7 @@ class FindMove{
 				return $alpha;
 			}
 			if($depth == 0){
-				printf("value: %d, %d\n", $val, $i);
+				//printf("value: %d, %d\n", $val, $i);
 			}
 		}
 		if($max == NULL){
@@ -117,14 +113,14 @@ class FindMove{
 	}
 
 	//helpers
-	private function doMove(&$board, $i, $player){
+	public function doMove(&$board, $i, $player){
 		if($this->ref[$i] < 0){
 			throw new Exception("Cannot make move");
 		}
 		$board[$this->ref[$i]][$i] = $player;
 		$this->ref[$i] = $this->ref[$i] - 1;
 	}
-	private function undoMove(&$board, $i, $player){
+	public function undoMove(&$board, $i, $player){
 		if($this->ref[$i] > 6 || $board[$this->ref[$i]+1][$i] != $player){
 			throw new Exception("Cannot undo move, unexpected player");
 		}
@@ -132,7 +128,7 @@ class FindMove{
 		$this->ref[$i] = $this->ref[$i] + 1;
 	}
 	//i is the column of the move just made, so ref[i] points just above
-	private function hasWon(&$board, $jStart, $player){
+	public function hasWon(&$board, $jStart, $player){
 		$iStart = $this->ref[$jStart] + 1;
 		//check horizontal
 		$hCount = 1;
@@ -370,7 +366,18 @@ class FindMove{
 
 		return $score;//should be fine, it'll just always select the first move for now
 	}
-	public function findMove(&$board, $usePruning){
+	public function findMove(&$board, $mainPlayer, $usePruning){
+		$this->a = $mainPlayer;
+		if($this->a != 1 && $this->a != 2){
+			throw new Exception("Player should be integer, 1 or 2");
+		}
+		if($this->a == 1){
+			$this->b = 2;
+		}
+		else{
+			$this->b = 1;
+		}
+
 		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
 			throw new InvalidArgumentException("Board must be 7x7");	
 		}
@@ -397,24 +404,4 @@ class FindMove{
 		}
 	}
 }
-
-$start = microtime(true);
-$ex = array(
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 0, 0, 0)
-);
-$mover = new FindMove(2);//says best move is 4??
-//printf("Score is %d\n" , $mover->score($ex));
-$move = $mover->findMove($ex, false);
-printf("Best move is %d\n", $move);
-printf("==========\n");
-//$move = $mover->findMove($ex, false);
-printf("Best move is %d\n", $move);
-$end = microtime(true);
-printf("Time taken : %f\n", $end-$start);
 ?>

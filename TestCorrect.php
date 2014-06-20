@@ -1,6 +1,5 @@
 <?php
-require_once("ConnectFourAI.php");
-require_once("BoardUtils.php");
+require_once("C4AI.php");
 class TestCorrect extends PHPUnit_Framework_TestCase{
 	public function testPruning(){
 		//play an entire game against itself, ensure that the move with/without the pruning matches
@@ -13,8 +12,8 @@ class TestCorrect extends PHPUnit_Framework_TestCase{
 			array(0, 0, 0, 0, 0, 0, 0),
 			array(0, 0, 0, 0, 0, 0, 0)
 		);
-		$ai = ConnectFourAI::getInstance();
-		for($i = 0; $i < 10; $i++){
+		$ai = C4AI::getInstance();
+		for($i = 0; $i < 4; $i++){
 			$player = 2;
 			if($i % 2 == 0){
 				$player = 1;
@@ -22,9 +21,9 @@ class TestCorrect extends PHPUnit_Framework_TestCase{
 			$pruneMove = $ai->findMove($board, $player, true);
 			$noPruneMove = $ai->findMove($board, $player, false);
 			$this->assertEquals($pruneMove, $noPruneMove);
-			BoardUtils::doMove($board, $pruneMove, $player);
+			$ai->doMove($board, $pruneMove, $player);
 			printf("Player %d move to %d\n", $player, $pruneMove);
-			$ai->printBoard();
+			$ai->printBoard($board);
 		}
 	}
 }
