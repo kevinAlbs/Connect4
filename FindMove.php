@@ -402,11 +402,11 @@ $start = microtime(true);
 $ex = array(
 	array(0, 0, 0, 0, 0, 0, 0),
 	array(0, 0, 0, 0, 0, 0, 0),
-	array(0, 0, 0, 0, 2, 1, 0),
-	array(0, 0, 2, 0, 1, 2, 2),
-	array(1, 2, 1, 0, 2, 1, 1),
-	array(2, 1, 1, 0, 2, 1, 1),
-	array(2, 1, 1, 1, 2, 1, 1)
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 0, 0, 0),
+	array(0, 0, 0, 0, 0, 0, 0)
 );
 $mover = new FindMove(2);//says best move is 4??
 //printf("Score is %d\n" , $mover->score($ex));
