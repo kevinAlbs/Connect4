@@ -5,9 +5,11 @@ Finished
 
 Now
 ===
-- Scoring does not take into account skips, e.g. 1 1 0 1, that zero is the best move for 1
-- Clean up some of the more messy parts. Comment well
-- Alpha beta might work, requires testing, reduces time :)
+- I need to decide how I want to release this. Having everything on the API side will be detrimental to the running time of my front-end (having to do requests for win-checking). But if I have some front-end and some back-end I'll end up writing some redundant code. Here are my options:
+	- <b>Have just the AI as an API, nothing else.</b> This will result in some redundant code on the front-end, but it will be a simple and straightforward API.
+	- <b>Flesh out the API to include board win checks</b> <- leaning towards this, animation of the chip falling will give enough time for requests to send anyway. I can also rewrite the hasWon method in JS to reduce the API calls. But it will at least make the API more full-fledged.
+	- <b>Rewrite what I have to be entirely in JS</b> Could potentially slow the running time, also makes it less available to other programs. I'd rather rewrite in C.
+- Create API, have it return all values for moves (so user can choose random of equal value moves)
 
 Eventually
 ==========
