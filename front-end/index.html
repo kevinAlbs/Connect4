@@ -1,24 +1,142 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Connect Four</title>
-		<style>
-		*{
-			margin: 0px;
-			padding: 0px;
-		}
-		#board{
-			width: 280px;
-			height: 280px;
-		}
-		</style>
-	</head>
-	<body>
-		<div id="board">
-		</div>
-		<script src="jquery.js"></script>
-		<script>
-			$("#board").
-		</script>
-	</body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="Kevin Albertson">
+
+  <style>
+    *{
+      margin: 0px;
+      padding: 0px;
+    }
+    #container{
+      width: 300px;
+      margin-top: 100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #board{
+      position: relative;
+      width: 158px;
+      height: 151px;
+      padding-left: 2px;
+      padding-top: 3px;
+      background: url("board.jpg") no-repeat;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    #board .col{
+      width: 22px;
+      height: 146px;
+      float: left;
+      position: relative;
+      cursor: pointer;
+    }
+    #board .col:hover{
+      background: rgba(0, 255, 100, .1);
+    }
+    .arrow{
+      width: 11px;
+      height: 22px;
+      background: url("arrow.jpg") no-repeat;
+      position: absolute;
+      top: -35px;
+      left: 5px;
+      display: none;
+    }
+    .piece{
+      position: absolute;
+      top: -20px;
+      left: 1px;
+      width: 20px;
+      height: 20px;
+      background: url("piece_red.png") no-repeat;
+    }
+    #board .col:hover .arrow{
+      display: block;
+    }
+  </style>
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div id="container">
+    <div id="board">
+      <div class="col"><div class="arrow"></div><div class="pieces"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+    </div>
+  </div>
+  <script src="jquery.js"></script>
+  <script src="jquery-ui-1.10.4.custom.min.js">/* only has core + bounce + effect */</script>
+  <script>
+    //module for game logic + API calls
+    var GAME = (function(){
+      var that = {};
+      var board = [];
+      var ref = [];
+      var turn = 1;
+      //initialize board
+      for(var i = 0; i < 7; i++){
+        ref[i] = 6;//should be ref[col] but deal with it
+        board[i] = [];
+        for(var j = 0; j < 7; j++){
+           board[i][j] = 0;
+        }
+      }
+
+      function validIndex(i){
+        return i >= 0 && i <= 6;
+      }
+      that.getNumSpaces = function(j){
+        if(!validIndex(j)){
+          throw "Invalid index for column";
+        }
+        return ref[j] + 1;//lol
+      }
+      that.placePiece = function(j){
+        if(!validIndex(j)){
+          throw "Invalid index for column";
+        }
+        if(ref[j] <= -1){
+          throw "No spaces left in column";
+        }
+        board[ref[j]][j] = 1;
+        ref[j]--;
+      }
+      that.playAI = function(){
+
+      }
+      return that;
+    }());
+
+    $("#board .col").click(function(){
+      var col = $(this);
+      var index = $("#board .col").index(col);
+      var num_spaces = GAME.getNumSpaces(index);
+      if(num_spaces == 0){
+        return;
+      }
+      var new_piece = $("<div class='piece'></div>").css({top: "-20px"});
+
+      new_piece.animate({
+        top: ((num_spaces-1) * 21) + "px"
+      }, 1000 - ((6-num_spaces)*100), "easeOutBounce");
+      col.append(new_piece);
+      GAME.placePiece(index);
+    });
+  </script>
+</body>
 </html>
