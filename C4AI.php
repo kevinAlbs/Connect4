@@ -3,7 +3,8 @@ define("MAX_DEPTH", 6);//Takes about 1.5-2 seconds
 define("DEBUG", 1);
 class C4AI{
 	private $a, $b;
-	private $bestMove = NULL;//integer 0-6
+    private $bestMove = NULL;//integer 0-6
+    private $allMoves = array();
 	private $ref = array();//Map between column and current index of top SPACE (so if column i is empty, ref[i] = 6
 	private $score = 0;
 	private static $instance = NULL;
@@ -83,7 +84,10 @@ class C4AI{
 			}
 			else{
 				$val = $this->min($board, $depth+1, $alpha, $beta, $usePruning);
-			}
+            }
+            if ($depth == 0){
+                $this->allMoves[$i] = $val;
+            }
 			//$this->printBoard($board);
 			$this->undoMove($board, $i, $this->a);
 			if($max == NULL || $val > $max){
