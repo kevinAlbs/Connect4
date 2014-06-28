@@ -369,8 +369,9 @@ class C4AI{
 		}
 
 		return $score;//should be fine, it'll just always select the first move for now
-	}
-	public function findMove(&$board, $mainPlayer, $usePruning){
+    }
+
+	public function findAllMoves(&$board, $mainPlayer, $usePruning){
 		$this->a = $mainPlayer;
 		if($this->a != 1 && $this->a != 2){
 			throw new Exception("Player should be integer, 1 or 2");
@@ -396,9 +397,15 @@ class C4AI{
 			}
 		}
 		//given a 2d array, calculate the best possible move
-		$this->max($board, 0, 0, 0, $usePruning);
+        $this->max($board, 0, 0, 0, $usePruning);
+        return $this->allMoves;
+    }
+
+    public function findBestMove(&$board, $mainPlayer, $usePruning){
+        findAllMoves($board, $mainPlayer, $usePruning);
 		return $this->bestMove;
-	}
+    }
+
 	public function printBoard(&$board){
 		for($i = 0; $i < 7; $i++){
 			for($j = 0; $j < 7; $j++){

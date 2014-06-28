@@ -15,3 +15,4 @@ Eventually
 ==========
 - Optimize further by using a single dimensional array (or by flipping columns and rows so cache hits are more probable)
 - Optimize scoring by placing depth limit in loop and only calculating score difference and updating
+- Clean up code, make C4AI static class
