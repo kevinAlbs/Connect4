@@ -159,11 +159,33 @@ var GAME = (function(){
         $.ajax({
           url: CONFIG.endpoint + "getMoves",
           data: data,
+          dataType: "json",
           success: function(data){
             console.log(data);
+            if (typeof(data) != "object") {
+                console.log("Return data not object");
+                return;
+            }
             //select a random from best
+            var best = [], bestVal = Number.NEGATIVE_INFINITY;
+            for (var j in data){
+                if(data.hasOwnProperty(j)){
+                  if (data[j] == bestVal) {
+                    console.log("1");
+                    best.push(j);
+                  }
+                  else if (data[j] > bestVal) {
+                    console.log("2");
+                    best = [];
+                    best.push(j);
+                    bestVal = data[j];
+                  }
+                }
+            }
+            console.log(best);
+            var finalVal = best[Math.floor(best.length * Math.random())];
             if(callback){
-              callback(0);
+              callback(finalVal);
             }
           }
         });
@@ -212,7 +234,6 @@ var UI = (function(){
         that.dropPiece(GAME.getCurPlayer(), index);
         GAME.placePiece(index);
       }
-
     });
 }());
 </script>
