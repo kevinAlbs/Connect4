@@ -131,6 +131,61 @@ var GAME = (function(){
       }
     }
 
+    function won(player, iStart, jStart){
+      if(board[iStart][jStart] != player) return false;
+      var count = 1;
+      //check vertical 
+      for(var i = iStart + 1; i < 7; i++){
+        if(board[i][jStart] == player) count++;
+        else break;
+      }
+      for(var i = iStart - 1; i >= 0; i--){
+        if(board[i][jStart] == player) count++;
+        else break;
+      }
+
+      if(count >= 4) return true;
+      else count = 1;
+
+      //check horizontal
+      for(var j = jStart + 1; j < 7; j++){
+        if(board[iStart][j] == player) count++;
+        else break;
+      }
+      for(var j = jStart - 1; j >= 0; j--){
+        if(board[iStart][j] == player) count++;
+        else break;
+      }
+
+      if(count >= 4) return true;
+      else count = 1;
+
+      //check diagonals
+      for(var j = jStart+1, i = iStart+1; j < 7 && i < 7; i++, j++){
+        if(board[i][j] == player) count++;
+        else break;
+      }
+      for(var j = jStart-1, i = iStart-1; j >= 0 && i >= 0; i--, j--){
+        if(board[i][j] == player) count++;
+        else break;
+      }
+
+      if(count >= 4) return true;
+      else count = 1;
+
+      //check diagonals
+      for(var j = jStart-1, i = iStart+1; j >= 0 && i < 7; i++, j--){
+        if(board[i][j] == player) count++;
+        else break;
+      }
+      for(var j = jStart+1, i = iStart-1; j < 7 && i >= 0; i--, j++){
+        if(board[i][j] == player) count++;
+        else break;
+      }
+      if(count >= 4) return true;
+      return false;
+    }
+
     that.getCurPlayer = function() { return cur_player; }
     that.getNumSpaces = function(j){
       if(!validIndex(j)){
@@ -148,6 +203,10 @@ var GAME = (function(){
           throw "No spaces left in column";
         }
         board[ref[j]][j] = cur_player;
+        //check if player won
+        if(won(cur_player, ref[j], j)){
+            alert(cur_player + " won");
+        }
         ref[j]--;
         switchPlayer();
       }
