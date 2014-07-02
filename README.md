@@ -9,7 +9,7 @@ Now
 	- <b>Have just the AI as an API, nothing else.</b> This will result in some redundant code on the front-end, but it will be a simple and straightforward API.
 	- <b>Flesh out the API to include board win checks</b> <- leaning towards this, animation of the chip falling will give enough time for requests to send anyway. I can also rewrite the hasWon method in JS to reduce the API calls. But it will at least make the API more full-fledged.
 	- <b>Rewrite what I have to be entirely in JS</b> Could potentially slow the running time, also makes it less available to other programs. I'd rather rewrite in C.
-- Create API, have it return all values for moves (so user can choose random of equal value moves)
+- Win check in front-end seeming to be wonky
 
 Eventually
 ==========

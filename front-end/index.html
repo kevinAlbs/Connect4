@@ -36,10 +36,11 @@
     height: 146px;
     float: left;
     position: relative;
-    cursor: pointer;
+    
   }
-  #board .col:hover{
-    background: rgba(0, 255, 100, .1);
+  #board.unlocked .col:hover{
+    cursor: pointer;
+    background: rgba(0, 255, 200, .1);
   }
   .arrow{
     width: 11px;
@@ -64,7 +65,7 @@
     background: url("piece_red.png") no-repeat;
   }
 
-  #board .col:hover .arrow{
+  #board.unlocked .col:hover .arrow{
     display: block;
   }
   </style>
@@ -75,7 +76,7 @@
 </head>
 <body>
   <div id="container">
-    <div id="board">
+    <div id="board" class="unlocked">
       <div class="col"><div class="arrow"></div><div class="pieces"></div></div>
       <div class="col"><div class="arrow"></div></div>
       <div class="col"><div class="arrow"></div></div>
@@ -98,7 +99,7 @@ var GAME = (function(){
   var that = {};
   var board = [];
   var ref = [];
-  var cur_player = 1;
+  var cur_player = 1, winning_player = -1;
     //initialize board
     for(var i = 0; i < 7; i++){
         ref[i] = 6;//should be ref[col] but deal with it
@@ -133,6 +134,7 @@ var GAME = (function(){
 
     function won(player, iStart, jStart){
       if(board[iStart][jStart] != player) return false;
+      console.log("Win check " + iStart + "," + jStart);
       var count = 1;
       //check vertical 
       for(var i = iStart + 1; i < 7; i++){
@@ -187,6 +189,7 @@ var GAME = (function(){
     }
 
     that.getCurPlayer = function() { return cur_player; }
+    that.getWinningPlayer = function() { return winning_player; }
     that.getNumSpaces = function(j){
       if(!validIndex(j)){
         throw "Invalid index for column";
@@ -205,10 +208,13 @@ var GAME = (function(){
         board[ref[j]][j] = cur_player;
         //check if player won
         if(won(cur_player, ref[j], j)){
-            alert(cur_player + " won");
+          winning_player = cur_player;
+          console.log("yeah, won");
+          return true;
         }
         ref[j]--;
         switchPlayer();
+        return false;
       }
       that.AIGetMove = function(callback){
         var data = {
@@ -230,11 +236,9 @@ var GAME = (function(){
             for (var j in data){
                 if(data.hasOwnProperty(j)){
                   if (data[j] == bestVal) {
-                    console.log("1");
                     best.push(j);
                   }
                   else if (data[j] > bestVal) {
-                    console.log("2");
                     best = [];
                     best.push(j);
                     bestVal = data[j];
@@ -257,6 +261,22 @@ var UI = (function(){
   var boardLocked = false;
   var board = $("#board");
   var that = {};
+
+  function lock(){
+    boardLocked = true;
+    board.removeClass("unlocked").addClass("locked");
+  }
+  function unlock(){
+    boardLocked = false;
+    board.removeClass("locked").addClass("unlocked");
+  }
+
+  function getColor(num){
+    return "Red";
+  }
+  function showWon(msg){
+    alert(msg);
+  }
   /* Creates and drops piece */
   that.dropPiece = function(player, index, callback){
     var col = $($(".col").get(index));
@@ -275,20 +295,36 @@ var UI = (function(){
     if (boardLocked) return;
     var col = $(this);
     var index = board.find(".col").index(col);
-    boardLocked = true;
+    lock();
     if (CONFIG.AI) {
-      var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null;
-      function ifDoneThenAIMove(){
-        if (ai_ajax_complete && piece_drop_complete){
+      var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null, ai_won = false;
+        function ifDoneThenAIMove(){
+          if (ai_ajax_complete && piece_drop_complete){
             //move AI
-            that.dropPiece(GAME.getCurPlayer(), ai_ajax_move, function(){ boardLocked = false; });
-            GAME.placePiece(ai_ajax_move);
+            function onAIMove(){
+              if(ai_won){
+                //should run at some point ;)
+                showWon(getColor(GAME.getWinningPlayer()));
+              } else {
+                unlock()
+              }
+            }
+            that.dropPiece(GAME.getCurPlayer(), ai_ajax_move, onAIMove);
+            var ai_won = GAME.placePiece(ai_ajax_move);
+          }
+          if (player_won){
+            //unbelievable lol
+            showWon(getColor(GAME.getWinningPlayer()) + " wins");
           }
         }
+
         //Not sure if dropPiece or ajax call will finish first, both must be finished before board can unlock
         that.dropPiece(GAME.getCurPlayer(), index, function(){ piece_drop_complete = true; ifDoneThenAIMove(); });
-        GAME.placePiece(index);
-        GAME.AIGetMove( function(move) { ai_ajax_move = move; ai_ajax_complete = true; ifDoneThenAIMove(); });
+        var player_won = GAME.placePiece(index);
+        if(!player_won){
+          GAME.AIGetMove( function(move) { ai_ajax_move = move; ai_ajax_complete = true; ifDoneThenAIMove(); });
+        } 
+
       } else {
         that.dropPiece(GAME.getCurPlayer(), index);
         GAME.placePiece(index);
