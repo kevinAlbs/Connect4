@@ -30,7 +30,7 @@ class C4AI{
 			//apply move, calculate the max for the next state
 			$this->doMove($board, $i, $this->b);
 			if($this->hasWon($board, $i, $this->b)){
-				$val = -10000;
+				$val = -10000 + $depth;
 				$won = true;
 			}
 			else if($depth+1 >= MAX_DEPTH){
@@ -76,7 +76,7 @@ class C4AI{
 			//apply move, calculate the min for this state
 			$this->doMove($board, $i, $this->a);
 			if($this->hasWon($board, $i, $this->a)){
-				$val = 10000;
+				$val = 10000 - $depth; //the longer we have to wait for the win, the less of a good move it is
 				$won = true;
 			}
 			else if($depth+1 >= MAX_DEPTH){

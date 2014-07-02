@@ -85,6 +85,7 @@
       <div class="col"><div class="arrow"></div></div>
       <div class="col"><div class="arrow"></div></div>
     </div>
+    <p id="winner"></p>
   </div>
   <script src="jquery.js"></script>
   <script src="jquery-ui-1.10.4.custom.min.js">/* only has core + bounce + effect */</script>
@@ -132,9 +133,12 @@ var GAME = (function(){
       }
     }
 
+    //debugging
+    that.won = function(player, iStart, jStart){
+      return won(player, iStart, jStart);
+    }
     function won(player, iStart, jStart){
       if(board[iStart][jStart] != player) return false;
-      console.log("Win check " + iStart + "," + jStart);
       var count = 1;
       //check vertical 
       for(var i = iStart + 1; i < 7; i++){
@@ -151,14 +155,18 @@ var GAME = (function(){
 
       //check horizontal
       for(var j = jStart + 1; j < 7; j++){
-        if(board[iStart][j] == player) count++;
-        else break;
+        if(board[iStart][j] == player){
+          count++;
+        }
+        else{
+          break;
+        }
       }
       for(var j = jStart - 1; j >= 0; j--){
         if(board[iStart][j] == player) count++;
         else break;
       }
-
+      
       if(count >= 4) return true;
       else count = 1;
 
@@ -187,7 +195,7 @@ var GAME = (function(){
       if(count >= 4) return true;
       return false;
     }
-
+    that.getBoard = function() {return board;}
     that.getCurPlayer = function() { return cur_player; }
     that.getWinningPlayer = function() { return winning_player; }
     that.getNumSpaces = function(j){
@@ -207,6 +215,8 @@ var GAME = (function(){
         }
         board[ref[j]][j] = cur_player;
         //check if player won
+        console.log("Calling won with " + cur_player + " " + ref[j] + " " + j);
+        console.log(board);
         if(won(cur_player, ref[j], j)){
           winning_player = cur_player;
           console.log("yeah, won");
@@ -236,11 +246,11 @@ var GAME = (function(){
             for (var j in data){
                 if(data.hasOwnProperty(j)){
                   if (data[j] == bestVal) {
-                    best.push(j);
+                    best.push(parseInt(j));
                   }
                   else if (data[j] > bestVal) {
                     best = [];
-                    best.push(j);
+                    best.push(parseInt(j));
                     bestVal = data[j];
                   }
                 }
@@ -272,10 +282,10 @@ var UI = (function(){
   }
 
   function getColor(num){
-    return "Red";
+    return num == 1 ? "Green" : "Red";
   }
-  function showWon(msg){
-    alert(msg);
+  function showWon(player){
+    $("#winner").html(getColor(player) + " wins");
   }
   /* Creates and drops piece */
   that.dropPiece = function(player, index, callback){
@@ -297,30 +307,29 @@ var UI = (function(){
     var index = board.find(".col").index(col);
     lock();
     if (CONFIG.AI) {
-      var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null, ai_won = false;
+      var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null, ai_won = false, player_won = false;
         function ifDoneThenAIMove(){
           if (ai_ajax_complete && piece_drop_complete){
             //move AI
             function onAIMove(){
               if(ai_won){
-                //should run at some point ;)
-                showWon(getColor(GAME.getWinningPlayer()));
+                showWon(GAME.getWinningPlayer());
               } else {
                 unlock()
               }
             }
             that.dropPiece(GAME.getCurPlayer(), ai_ajax_move, onAIMove);
-            var ai_won = GAME.placePiece(ai_ajax_move);
+            ai_won = GAME.placePiece(ai_ajax_move);
+            console.log("Value of ai_won " + ai_won);
           }
           if (player_won){
-            //unbelievable lol
-            showWon(getColor(GAME.getWinningPlayer()) + " wins");
+            showWon(GAME.getWinningPlayer());
           }
         }
 
         //Not sure if dropPiece or ajax call will finish first, both must be finished before board can unlock
         that.dropPiece(GAME.getCurPlayer(), index, function(){ piece_drop_complete = true; ifDoneThenAIMove(); });
-        var player_won = GAME.placePiece(index);
+        player_won = GAME.placePiece(index);
         if(!player_won){
           GAME.AIGetMove( function(move) { ai_ajax_move = move; ai_ajax_complete = true; ifDoneThenAIMove(); });
         } 
