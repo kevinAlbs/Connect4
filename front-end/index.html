@@ -5,15 +5,24 @@
   <title></title>
   <meta name="description" content="">
   <meta name="author" content="Kevin Albertson">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
 
   <style>
   *{
     margin: 0px;
     padding: 0px;
+    font-family: "Open Sans", "Arial", "Helvetica", "sans-serif";
+  }
+  p{
+    margin: 1em 0;
+  }
+  h1{
+    font-size: 16px;
+    margin-bottom: 2em;
   }
   #container{
-    width: 300px;
-    margin-top: 100px;
+    width: 160px;
+    margin-top: 80px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -68,6 +77,10 @@
   #board.unlocked .col:hover .arrow{
     display: block;
   }
+
+
+
+
   </style>
 
   <!--[if lt IE 9]>
@@ -76,6 +89,7 @@
 </head>
 <body>
   <div id="container">
+    <h1>Connect 4 Beta</h1>
     <div id="board" class="unlocked">
       <div class="col"><div class="arrow"></div><div class="pieces"></div></div>
       <div class="col"><div class="arrow"></div></div>
@@ -91,7 +105,7 @@
   <script src="jquery-ui-1.10.4.custom.min.js">/* only has core + bounce + effect */</script>
   <script>
   var CONFIG = {
-    endpoint : "http://localhost/connect4/index.php/",
+    endpoint : "http://kevinalbs.com/connect4/index.php/",
     AI : true
   };
 
