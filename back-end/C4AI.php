@@ -1,5 +1,5 @@
 <?php
-define("MAX_DEPTH", 6);//Takes about 1.5-2 seconds
+define("MAX_DEPTH", 5);//Depending on machine's speed, 5 or 6 is a reasonable bound
 define("DEBUG", 1);
 class C4AI{
 	private $a, $b;
@@ -22,7 +22,6 @@ class C4AI{
 		$won = false;
 		$beta = INF;
 		for($i = 0; $i < 7; $i++){
-			//printf("Min d%d, a%d, b%d\n", $depth, $alpha, $beta);
 			if($board[0][$i] != 0){
 				//entire column filled
 				continue;

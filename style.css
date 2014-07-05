@@ -1,0 +1,81 @@
+*{
+  margin: 0px;
+  padding: 0px;
+}
+body{ 
+  font-family: "Open Sans", "Arial", "Helvetica", "sans-serif";
+}
+p{
+  margin: 1em 0;
+}
+h1{
+  font-size: 16px;
+  margin-bottom: 2em;
+}
+#container{
+  width: 160px;
+  margin-top: 80px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#board{
+  position: relative;
+  width: 158px;
+  height: 151px;
+  padding-left: 2px;
+  padding-top: 3px;
+  background: url("img/board.jpg") no-repeat;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#board .col{
+  width: 22px;
+  height: 146px;
+  float: left;
+  position: relative;
+  
+}
+#board.unlocked .col:hover{
+  cursor: pointer;
+  background: rgba(0, 255, 200, .1);
+}
+.arrow{
+  width: 11px;
+  height: 22px;
+  background: url("img/arrow.jpg") no-repeat;
+  position: absolute;
+  top: -35px;
+  left: 5px;
+  display: none;
+}
+.piece{
+  position: absolute;
+  top: -20px;
+  left: 1px;
+  width: 20px;
+  height: 20px;
+}
+.piece.pl_1{
+  background: url("img/piece_green3.png") no-repeat;
+}
+.piece.pl_2{
+  background: url("img/piece_red.png") no-repeat;
+}
+
+#board.unlocked .col:hover .arrow{
+  display: block;
+}
+footer{
+  margin-top: 3em;
+}
+footer p, footer a{
+  font-size: 10px;
+  color: #888;
+}
+footer a:hover{
+  color: #3243B8;
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Connect Four API</title>
+  <meta name="description" content="">
+  <meta name="author" content="Kevin Albertson">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <style type="text/css">
+    body{
+        font-family: "Open Sans", "Arial", "Helvetica", "sans-serif";
+    }
+    dt{
+        font-weight: bold;
+    }
+    #container{
+        margin: 2em;
+    }
+  </style>
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+    <div id="container">
+        <h1>Connect Four API Endpoint</h1>
+        <p>The source and documentation is on the <a href="http://github.com/kevinAlbs/connect4" target="_blank">GitHub repository</a></p>
+        <p>There is currently one functional endpoint (more to come). All can be used as either GET or POST requests.</p>
+        <dl>
+        <dt>http://kevinalbs.com/connect4/back-end/index.php/getMoves</dt>
+        <dd>
+        <p>This is the endpoint for the main AI. It requires one input, a completed board, which must be of the following form:</p>
+        <ul>
+            <li>A single string containing 49 characters, all mapping to locations on the 7 x 7 connect four board (going left to right, top to bottom)</li>
+            <li>Each character must be either 0 (for empty), 1 (for player 1), or 2 (for player 2)</li>
+        </ul>
+        <p>There is an additional optional parameter for specifiying which player to check for moves. The default is to check for player 1.</p>
+        <p>The endpoint returns a JSON object. It contains the column of the move (zero-based, so 0 is the left-most column and 6 is the right-most) mapping to it's relative min-max score</p>
+        <p>Example curl request:</p>
+        <pre>
+            curl 'http://kevinalbs.com/connect4/back-end/index.php/getMoves?board_data=0000000000000000020000001200000210000021001012100&player=2'
+        </pre>
+        </dd>
+    </div>
+</body>
+</html>

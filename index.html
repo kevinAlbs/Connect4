@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Connect Four</title>
+  <meta name="description" content="">
+  <meta name="author" content="Kevin Albertson">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+
+  <style>
+  </style>
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div id="container">
+    <h1>Connect Four</h1>
+    <div id="board" class="unlocked">
+      <div class="col"><div class="arrow"></div><div class="pieces"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+      <div class="col"><div class="arrow"></div></div>
+    </div>
+    <p id="winner"></p>
+    
+    <footer>
+      <p>The <a href="http://kevinalbs.com/connect4/back-end" target="_blank">Connect Four AI</a> is offered as a free and open API</p>
+      <p><a href="http://github.com/kevinAlbs/connect4" target="_blank">The source is on GitHub</a></p>
+      <p>Developed by <a href="http://kevinalbs.com" target="_blank">Kevin Albertson</a></p>
+    </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/jquery-ui-1.10.4.custom.min.js">/* only has core + bounce + effect */</script>
+  <script src="js/main.js"></script>
+</body>
+</html>

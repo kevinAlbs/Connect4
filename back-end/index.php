@@ -16,7 +16,9 @@ function getParam($field, $required=false, $default=null){
 //quick and dirty router
 $path_parts = explode("/", $_SERVER["PATH_INFO"]);
 if (count($path_parts) < 2) {
-    throw new InvalidArgumentException(sprintf("No route specified, must be either getMoves or hasWon"));
+    //show info page
+    require_once("info.html");
+    exit(0);
 }
 
 $route = $path_parts[1];
