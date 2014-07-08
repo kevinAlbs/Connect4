@@ -37,7 +37,11 @@ if ($route == "getMoves") {
     $ai = C4AI::getInstance();
     echo json_encode($ai->findAllMoves($board, $player, true), JSON_FORCE_OBJECT);
 } else if($route == "hasWon"){ 
-    echo "Maybe";
+    $i = intval(getParam("i", true));
+    $j = intval(getParam("j", true));
+    $player = intval(getParam("player", false, 1));
+    $ai = C4AI::getInstance();
+    echo $ai->hasWon($board, $i, $j, $player) ? "true" : "false";
 } else{
     throw new InvalidArgumentException("Invalid route, must be either getMoves or hasWon");
 }

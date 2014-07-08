@@ -1,5 +1,5 @@
 var CONFIG = {
-  endpoint : "http://kevinalbs.com/connect4/back-end/index.php/",
+  endpoint : "http://localhost/connect4/back-end/index.php/",
   AI : true //false for 2 player (in progress)
 };
 
@@ -110,8 +110,8 @@ var GAME = (function(){
       if(!validIndex(j)){
         throw "Invalid index for column";
       }
-        return ref[j] + 1;//lol
-      }
+      return ref[j] + 1;//lol
+    }
 
       /* Places piece in 2d array, switches player */
       that.placePiece = function(j){
@@ -213,6 +213,9 @@ var UI = (function(){
     if (boardLocked) return;
     var col = $(this);
     var index = board.find(".col").index(col);
+    if(GAME.getNumSpaces(index) <= 0){
+      return;
+    }
     lock();
     if (CONFIG.AI) {
       var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null, ai_won = false, player_won = false;

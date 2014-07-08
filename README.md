@@ -1,15 +1,12 @@
-Finished
+Features
 ========
-- Optimized space by passing array as reference.
-- Optimized by caching space location in an array so additional array traversal is not needed when doing/undoing moves
+- Min-max optimized by caching space location of moves made, so doing/undoing a move is constant
 
-Now
-===
-- I need to decide how I want to release this. Having everything on the API side will be detrimental to the running time of my front-end (having to do requests for win-checking). But if I have some front-end and some back-end I'll end up writing some redundant code. Here are my options:
-	- <b>Have just the AI as an API, nothing else.</b> This will result in some redundant code on the front-end, but it will be a simple and straightforward API.
-	- <b>Flesh out the API to include board win checks</b> <- leaning towards this, animation of the chip falling will give enough time for requests to send anyway. I can also rewrite the hasWon method in JS to reduce the API calls. But it will at least make the API more full-fledged.
-	- <b>Rewrite what I have to be entirely in JS</b> Could potentially slow the running time, also makes it less available to other programs. I'd rather rewrite in C.
-- Win check in front-end seeming to be wonky
+Working on
+==========
+- More phpunit tests
+- Experimenting with different features to see how much I can optimize and how it effects the running time
+- Rewriting C4AI in C
 
 Eventually
 ==========

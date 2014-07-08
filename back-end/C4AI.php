@@ -28,7 +28,7 @@ class C4AI{
 			}
 			//apply move, calculate the max for the next state
 			$this->doMove($board, $i, $this->b);
-			if($this->hasWon($board, $i, $this->b)){
+			if($this->hasWon($board, $this->ref[$i]+1, $i, $this->b)){
 				$val = -10000 + $depth;
 				$won = true;
 			}
@@ -74,7 +74,7 @@ class C4AI{
 			}
 			//apply move, calculate the min for this state
 			$this->doMove($board, $i, $this->a);
-			if($this->hasWon($board, $i, $this->a)){
+			if($this->hasWon($board, $this->ref[$i]+1, $i, $this->a)){
 				$val = 10000 - $depth; //the longer we have to wait for the win, the less of a good move it is
 				$won = true;
 			}
@@ -122,17 +122,18 @@ class C4AI{
 		}
 		$board[$this->ref[$i]][$i] = $player;
 		$this->ref[$i] = $this->ref[$i] - 1;
-	}
+    }
+
 	public function undoMove(&$board, $i, $player){
 		if($this->ref[$i] > 6 || $board[$this->ref[$i]+1][$i] != $player){
 			throw new Exception("Cannot undo move, unexpected player");
 		}
 		$board[$this->ref[$i]+1][$i] = 0;
 		$this->ref[$i] = $this->ref[$i] + 1;
-	}
-	//i is the column of the move just made, so ref[i] points just above
-	public function hasWon(&$board, $jStart, $player){
-		$iStart = $this->ref[$jStart] + 1;
+    }
+
+	//jStart is the column of the move just made, so ref[jStart] points just above
+	public function hasWon(&$board, $iStart, $jStart, $player){
 		//check horizontal
 		$hCount = 1;
 		$i = $iStart;
@@ -231,9 +232,10 @@ class C4AI{
 	}
 	private function playerWeight($player){
 		return $player == $this->a ? 1 : -1;
-	}
+    }
+    
 	//given a step through the i and j, count consecutive lines of pieces and return a score
-	private function scorePaths(&$board, $iStart, $jStart, $iStep, $jStep){
+	private function scorePath(&$board, $iStart, $jStart, $iStep, $jStep){
 		$score = 0;
 		//go through each row, count # of possible wins
 		$lspaces = 0;
@@ -350,21 +352,21 @@ class C4AI{
 		}
 		//go through rows
 		for($i = 0; $i < 7; $i++){
-			$score += $this->scorePaths($board, $i, 0, 0, 1);
+			$score += $this->scorePath($board, $i, 0, 0, 1);
 		}
 		//go through the diagonals
 		for($i = 3; $i < 7; $i++){
-			$score += $this->scorePaths($board, $i, 0, -1, 1);
+			$score += $this->scorePath($board, $i, 0, -1, 1);
 		}
 		for($j = 1; $j <= 3; $j++){
-			$score += $this->scorePaths($board, 6, $j, -1, 1);
+			$score += $this->scorePath($board, 6, $j, -1, 1);
 		}
 
 		for($i = 0; $i <= 3; $i++){
-			$score += $this->scorePaths($board, $i, 0, 1, 1);
+			$score += $this->scorePath($board, $i, 0, 1, 1);
 		}
 		for($j = 1; $j <= 3; $j++){
-			$score += $this->scorePaths($board, 0, $j, 1, 1);
+			$score += $this->scorePath($board, 0, $j, 1, 1);
 		}
 
 		return $score;//should be fine, it'll just always select the first move for now
