@@ -1,6 +1,9 @@
 <?php
 define("MAX_DEPTH", 5);//Depending on machine's speed, 5 or 6 is a reasonable bound
-define("DEBUG", 1);
+
+/* Uses min-max algorithm and alpha-beta pruning to determing best move.
+ * Scoring is determined by the number and length of contiguous paths which are possible future win paths.
+ */
 class C4AI{
 	private $a, $b;
     private $bestMove = NULL;//integer 0-6
@@ -17,7 +20,7 @@ class C4AI{
 	}
 
 
-	private function min(&$board, $depth, $alpha, $beta, $usePruning){
+	private function min(&$board, $depth, $alpha, $beta){
 		$min = NULL;
 		$won = false;
 		$beta = INF;
@@ -36,7 +39,7 @@ class C4AI{
 				$val = $this->score($board);
 			}
 			else{
-				$val = $this->max($board, $depth+1, $alpha, $beta, $usePruning);
+				$val = $this->max($board, $depth+1, $alpha, $beta);
 			}
 			$this->undoMove($board, $i, $this->b);
 			if($min == NULL || $val < $min){
@@ -46,9 +49,8 @@ class C4AI{
 			if($won){
 				break;
 			}
-			if($usePruning && $beta < $alpha){
+			if($beta < $alpha){
 				//then this parent will have a smaller value then the current best alpha, no chance
-				//printf("Min cut d%d, a%d, b%d\n", $depth, $alpha, $beta);
 				return $beta;
 			}
 		}
@@ -60,9 +62,11 @@ class C4AI{
 			return $min;
 		}
 	}
-	//board must be passed by reference, apparently PHP copies arrays by default :/
-	//Goes through all player a's options, returns the maximum value (of the mins of those options)
-	private function max(&$board, $depth, $alpha, $beta, $usePruning){
+
+	/* Goes through all player a's options, returns the maximum value (of the mins of those options)
+	 * Board must be passed by reference since PHP copies arrays by default
+	 */
+	private function max(&$board, $depth, $alpha, $beta){
 		$max = NULL;
 		$won = false;
 		$alpha = -1 * INF; //we want to set the alpha on this level, not based on previous alpha
@@ -82,12 +86,12 @@ class C4AI{
 				$val = $this->score($board);
 			}
 			else{
-				$val = $this->min($board, $depth+1, $alpha, $beta, $usePruning);
+				$val = $this->min($board, $depth+1, $alpha, $beta);
             }
             if ($depth == 0){
                 $this->allMoves[$i] = $val;
             }
-			//$this->printBoard($board);
+
 			$this->undoMove($board, $i, $this->a);
 			if($max == NULL || $val > $max){
 				$max = $val;
@@ -97,13 +101,9 @@ class C4AI{
 				}
 			}
 			if($won){ break; }
-			if($usePruning && $alpha > $beta && $depth != 0){
+			if($alpha > $beta && $depth != 0){
 				//the current max val is > then parent level beta, so no way will parent be chosen
-				//printf("Max cut d%d, a%d, b%d\n", $depth, $alpha, $beta);
 				return $alpha;
-			}
-			if($depth == 0){
-				//printf("value: %d, %d\n", $val, $i);
 			}
 		}
 		if($max == NULL){
@@ -132,7 +132,9 @@ class C4AI{
 		$this->ref[$i] = $this->ref[$i] + 1;
     }
 
-	//jStart is the column of the move just made, so ref[jStart] points just above
+	/* Checks whether the most recent simulated move results in the player winning
+	 * jStart is the column of the move just made, so ref[jStart] points just above
+	 */
 	public function hasWon(&$board, $iStart, $jStart, $player){
 		//check horizontal
 		$hCount = 1;
@@ -216,10 +218,7 @@ class C4AI{
 			$i++;
 			$j++;
 		}
-		//$this->printBoard($board);
-		//printf("h: %d, v: %d, d1: %d, d2: %d\n", $hCount, $vCount, $d1Count, $d2Count);
 		if($hCount >= 4 || $vCount >= 4 || $d1Count >= 4 || $d2Count >= 4){
-			//printf("Player %d can win\n", $player);
 			return true;
 		}
 		else{
@@ -234,7 +233,9 @@ class C4AI{
 		return $player == $this->a ? 1 : -1;
     }
     
-	//given a step through the i and j, count consecutive lines of pieces and return a score
+	/* given a step through the i and j, count consecutive lines of pieces and return a score
+	 * this need not take winning into account since the hasWon function will break the min/max before scoring is called
+	 */
 	private function scorePath(&$board, $iStart, $jStart, $iStep, $jStep){
 		$score = 0;
 		//go through each row, count # of possible wins
@@ -289,15 +290,9 @@ class C4AI{
 					$jp += $jStep;
 				}
 				if($rspaces + $lspaces + $curPlayerCount >= 4){
-					//printf("Row : %d, Col: %d, Path : %d, Player: %d\n", $i, $j, $curPlayerCount, $curPlayer);
-					//possible win
-					if($curPlayerCount >= 4){
-						//winning move
-						$score += 1000 * $this->playerWeight($curPlayer);
-					}
-					else{
+
 						$score +=  $curPlayerCount * $this->playerWeight($curPlayer);
-					}
+					
 				}
 				$curPlayerCount = 0;
 				$curPlayer = -1;
@@ -310,10 +305,7 @@ class C4AI{
 			$i += $iStep;
 			$j += $jStep;
 		}
-		if($curPlayerCount >= 4){
-			//if player wins without any spaces after, need to update score
-			$score += 1000 * $this->playerWeight($curPlayer);
-		}
+
 		return $score;
 
 	}
@@ -372,7 +364,7 @@ class C4AI{
 		return $score;//should be fine, it'll just always select the first move for now
     }
 
-	public function findAllMoves(&$board, $mainPlayer, $usePruning){
+	public function findAllMoves(&$board, $mainPlayer){
 		$this->a = $mainPlayer;
 		if($this->a != 1 && $this->a != 2){
 			throw new Exception("Player should be integer, 1 or 2");
@@ -398,12 +390,12 @@ class C4AI{
 			}
 		}
 		//given a 2d array, calculate the best possible move
-        $this->max($board, 0, 0, 0, $usePruning);
+        $this->max($board, 0, 0, 0);
         return $this->allMoves;
     }
 
-    public function findBestMove(&$board, $mainPlayer, $usePruning){
-        findAllMoves($board, $mainPlayer, $usePruning);
+    public function findBestMove(&$board, $mainPlayer){
+        findAllMoves($board, $mainPlayer);
 		return $this->bestMove;
     }
 
