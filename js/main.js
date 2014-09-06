@@ -1,14 +1,18 @@
 var CONFIG = {
   endpoint : "http://localhost/connect4/back-end/index.php/",
-  AI : true //false for 2 player (in progress)
 };
 
-//module for game logic + API calls
+/* Module for game logic + API calls
+ *
+ * There is duplicated logic here as in the API, e.g. win checking.
+ * However, it reduces requests made.
+ */
 var GAME = (function(){
   var that = {};
   var board = [];
   var ref = [];
   var cur_player = 1, winning_player = -1;
+  var winning_pieces = [];
     //initialize board
     for(var i = 0; i < 7; i++){
         ref[i] = 6;//should be ref[col] but deal with it
@@ -47,65 +51,122 @@ var GAME = (function(){
     }
     function won(player, iStart, jStart){
       if(board[iStart][jStart] != player) return false;
+      winning_pieces = [];
+      winning_pieces.push({i: iStart, j: jStart});
       var count = 1;
       //check vertical 
       for(var i = iStart + 1; i < 7; i++){
-        if(board[i][jStart] == player) count++;
-        else break;
+        if(board[i][jStart] == player){
+          count++;
+          winning_pieces.push({i : i, j: jStart});
+        }
+        else {
+          break;
+        }
       }
       for(var i = iStart - 1; i >= 0; i--){
-        if(board[i][jStart] == player) count++;
-        else break;
+        if(board[i][jStart] == player){
+          count++;
+          winning_pieces.push({i : i, j: jStart});
+        }
+        else {
+          break;
+        }
       }
 
-      if(count >= 4) return true;
-      else count = 1;
+      if(count >= 4) {
+        return true;
+      }
+      else {
+        count = 1;
+        winning_pieces = winning_pieces.slice(0, 1);
+      }
 
       //check horizontal
       for(var j = jStart + 1; j < 7; j++){
         if(board[iStart][j] == player){
           count++;
+          winning_pieces.push({i : iStart, j: j});
         }
         else{
           break;
         }
       }
       for(var j = jStart - 1; j >= 0; j--){
-        if(board[iStart][j] == player) count++;
-        else break;
+        if(board[iStart][j] == player) {
+          count++;
+          winning_pieces.push({i : iStart, j: j});
+        }
+        else {
+          break;
+        }
       }
       
-      if(count >= 4) return true;
-      else count = 1;
+      if(count >= 4) {
+        return true;
+      }
+      else {
+        count = 1;
+        winning_pieces = winning_pieces.slice(0, 1);
+      }
 
       //check diagonals
       for(var j = jStart+1, i = iStart+1; j < 7 && i < 7; i++, j++){
-        if(board[i][j] == player) count++;
-        else break;
+        if(board[i][j] == player) {
+          count++;
+          winning_pieces.push({i : i, j: j});
+        }
+        else {
+          break;
+        }
       }
       for(var j = jStart-1, i = iStart-1; j >= 0 && i >= 0; i--, j--){
-        if(board[i][j] == player) count++;
-        else break;
+        if(board[i][j] == player) {
+          count++;
+          winning_pieces.push({i : i, j: j});
+        }
+        else {
+          break;
+        }
       }
 
-      if(count >= 4) return true;
-      else count = 1;
+      if(count >= 4) {
+        return true;
+      }
+      else {
+        count = 1;
+        winning_pieces = winning_pieces.slice(0, 1);
+      }
 
       //check diagonals
       for(var j = jStart-1, i = iStart+1; j >= 0 && i < 7; i++, j--){
-        if(board[i][j] == player) count++;
-        else break;
+        if(board[i][j] == player) {
+          count++;
+          winning_pieces.push({i : i, j: j});
+        }
+        else {
+          break;
+        }
       }
       for(var j = jStart+1, i = iStart-1; j < 7 && i >= 0; i--, j++){
-        if(board[i][j] == player) count++;
-        else break;
+        if(board[i][j] == player) {
+          count++;
+          winning_pieces.push({i : i, j: j});
+        }
+        else {
+          break;
+        }
       }
-      if(count >= 4) return true;
+
+      if(count >= 4) {
+        return true;
+      }
       return false;
     }
     that.getBoard = function() {return board;}
     that.getCurPlayer = function() { return cur_player; }
     that.getWinningPlayer = function() { return winning_player; }
+    that.getWinningPieces = function() { return winning_pieces; }
     that.getNumSpaces = function(j){
       if(!validIndex(j)){
         throw "Invalid index for column";
@@ -127,7 +188,6 @@ var GAME = (function(){
         console.log(board);
         if(won(cur_player, ref[j], j)){
           winning_player = cur_player;
-          console.log("yeah, won");
           return true;
         }
         ref[j]--;
@@ -163,7 +223,6 @@ var GAME = (function(){
                   }
                 }
             }
-            console.log(best);
             var finalVal = best[Math.floor(best.length * Math.random())];
             if(callback){
               callback(finalVal);
@@ -171,7 +230,9 @@ var GAME = (function(){
           }
         });
       }
-
+      that.init = function(settings){
+        that.GAME_TYPE = settings.GAME_TYPE;
+      }
       return that;
     }());
 
@@ -189,20 +250,35 @@ var UI = (function(){
     board.removeClass("locked").addClass("unlocked");
   }
 
+  function highlight(pieces) {
+    //remove highlight if exists
+    board.find(".piece").removeClass("highlight");
+    if (!pieces) {
+      return;
+    }
+    for (var k = 0; k < pieces.length; k++) {
+      var piece = pieces[k];
+      var piece_dom = $(board.find("[data-i=" + piece.i + "][data-j=" + piece.j + "]")[0]);
+      piece_dom.addClass("highlight");
+    }
+  }
+
   function getColor(num){
     return num == 1 ? "Green" : "Red";
   }
-  function showWon(player){
-    $("#winner").html(getColor(player) + " wins");
+  function showWon(){
+    $("#winner").html(getColor(GAME.getWinningPlayer()) + " wins");
+    var pieces = GAME.getWinningPieces();
+    highlight(pieces);
   }
   /* Creates and drops piece */
   that.dropPiece = function(player, index, callback){
-    var col = $($(".col").get(index));
+    var col = $(board.find(".col")[index]);
     var num_spaces = GAME.getNumSpaces(index);
     if(num_spaces == 0){
       return;
     }
-    var new_piece = $("<div class='piece'></div>").css({top: "-20px"}).addClass("pl_" + player);
+    var new_piece = $("<div class='piece'></div>").css({top: "-20px"}).addClass("pl_" + player).attr("data-i" , num_spaces-1).attr("data-j", index);
     new_piece.animate({
       top: ((num_spaces-1) * 21) + "px"
     }, 1000 - ((6-num_spaces)*100), "easeOutBounce", function(){callback();});
@@ -217,14 +293,14 @@ var UI = (function(){
       return;
     }
     lock();
-    if (CONFIG.AI) {
+    if (GAME.GAME_TYPE == "AI") {
       var ai_ajax_complete = false, piece_drop_complete = false, ai_ajax_move = null, ai_won = false, player_won = false;
         function ifDoneThenAIMove(){
           if (ai_ajax_complete && piece_drop_complete){
             //move AI
             function onAIMove(){
               if(ai_won){
-                showWon(GAME.getWinningPlayer());
+                showWon();
               } else {
                 unlock()
               }
@@ -234,7 +310,7 @@ var UI = (function(){
             console.log("Value of ai_won " + ai_won);
           }
           if (player_won){
-            showWon(GAME.getWinningPlayer());
+            showWon();
           }
         }
 
@@ -246,8 +322,17 @@ var UI = (function(){
         } 
 
       } else {
-        that.dropPiece(GAME.getCurPlayer(), index);
-        GAME.placePiece(index);
+        var player_won = false;
+        function switchPlayer() {
+          if (player_won) {
+            showWon();
+          } else {
+            unlock();
+          }
+        }
+        that.dropPiece(GAME.getCurPlayer(), index, switchPlayer);
+        player_won = GAME.placePiece(index);
       }
     });
+    return that;
 }());
