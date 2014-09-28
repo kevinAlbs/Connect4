@@ -1,15 +1,17 @@
-Features
-========
-- Min-max optimized by caching space location of moves made, so doing/undoing a move is constant
+# Connect Four AI #
+This repo contains:
+- Connect Four AI API written in PHP
+- Implemented front-end game in html/javascript
+
+You can see a live demo here: [http://kevinalbs.com/connect4/](http://kevinalbs.com/connect4/).
+
+The simplistic API accepts a board state and replies with a list of possible moves and their scores (calculated using the minimax algorithm and a heuristic for the board score).
+Information about using the API is here [http://kevinalbs.com/connect4/back-end/](http://kevinalbs.com/connect4/back-end/).
 
 Working on
 ==========
-- More phpunit tests
+- Phpunit tests
 - Experimenting with different features to see how much I can optimize and how it effects the running time
 - Rewriting C4AI in C
-
-Eventually
-==========
-- Optimize further by using a single dimensional array (or by flipping columns and rows so cache hits are more probable)
+- Further optimize by using a single dimensional array (or by flipping columns and rows so cache hits are more probable)
 - Optimize scoring by placing depth limit in loop and only calculating score difference and updating
-- Clean up code, make C4AI static class
