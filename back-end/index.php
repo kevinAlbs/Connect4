@@ -38,9 +38,9 @@ class Router {
             $ai = C4AI::getInstance();
             echo json_encode($ai->findAllMoves($board, $player), JSON_FORCE_OBJECT);
         } else if($route == "hasWon"){ 
-            $i = intval(getParam("i", true));
-            $j = intval(getParam("j", true));
-            $player = intval(getParam("player", false, 1));
+            $i = intval(static::getParam("i", true));
+            $j = intval(static::getParam("j", true));
+            $player = intval(static::getParam("player", false, 1));
             $ai = C4AI::getInstance();
             echo $ai->hasWon($board, $i, $j, $player) ? "true" : "false";
         } else{
