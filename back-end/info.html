@@ -32,31 +32,32 @@
     <div id="container">
         <h1>Connect Four API Endpoint</h1>
         <p>The source is on the <a href="http://github.com/kevinAlbs/connect4" target="_blank">GitHub repository</a></p>
-        <p>There is currently one functional endpoint (more to come). All can be used as either GET or POST requests.</p>
         <dl>
-          <dt>http://kevinalbs.com/connect4/back-end/index.php/getMoves</dt>
+          <dt>https://kevinalbs.com/connect4/back-end/index.php/getMoves</dt>
           <dd>
-            <p>Main Checking
+            <p>Returns scores for moves.</p>
             <h4>Parameters</h4>
             <ul>
-              <li><b>board_data</b> A single string containing 49 characters, all mapping to locations on the 7 x 7 connect four board (going left to right, top to bottom)</li>
+              <li><b>board_data</b> A string of 42 characters representing a 6x7 board (going left to right, top to bottom). For backwards compatibility, a non-standard 7x7 board is supported.</li>
               <li><b>player (optional)</b> Which player (1 or 2) to find moves for. Default is player 1.</li>
             </ul>
-            <p>This returns a JSON object. It contains the column of the move (zero-based, so 0 is the left-most column and 6 is the right-most) mapping to it's relative min-max score</p>
-            <h4>Example curl request:</h4>
-            <pre>curl 'http://kevinalbs.com/connect4/back-end/index.php/getMoves?board_data=0000000000000000020000001200000210000021001012100&player=2'</pre>
+            <p>Returns a JSON object mapping the column of the move (zero-based, so 0 is the left-most column and 6 is the right-most) to a score.</p>
+            <h4>Example</h4>
+            <pre>$ curl -s 'https://kevinalbs.com/connect4/back-end/index.php/getMoves?board_data=0000000000000000020000001200000210000021001012100&player=2'
+{"0":10,"1":10,"2":13,"3":13,"4":13,"5":12,"6":12}</pre>
           </dd>
-          <dt>http://kevinalbs.com/connect4/back-end/index.php/hasWon</dt>
+          <dt>https://kevinalbs.com/connect4/back-end/index.php/hasWon</dt>
           <dd>
-            <p>Checks if a board is a winning board for a player. Only checks for a single piece.</p>
+            <p>Checks if a player has won. Only checks for a single piece.</p>
             <ul>
-                <li><b>board_data</b> (same as above) A single string containing 49 characters, all mapping to locations on the 7 x 7 connect four board (going left to right, top to bottom)</li>
+                <li><b>board_data</b> A string of 42 characters representing a 6x7 board (going left to right, top to bottom). For backwards compatibility, a non-standard 7x7 board is supported.</li>
                 <li><b>player (optional)</b> Which player (1 or 2) to find moves for. Default is player 1.</li>
                 <li><b>i</b> The i<sup>th</sup> row (with 0 being top and 6 being bottom) of the piece to check</li>
                 <li><b>j</b> The j<sup>th</sup> column (with 0 being left and 6 being right) of the piece to check</li>
               </ul>
-            <h4>Example curl request:</h4>
-            <pre>curl 'http://kevinalbs.com/connect4/back-end/index.php/hasWon?board_data=0002000001102000222100012220002111000122100012110&player=2&i=3&j=3'</pre>
+            <h4>Example</h4>
+            <pre>$ curl -s 'https://kevinalbs.com/connect4/back-end/index.php/hasWon?board_data=0002000001102000222100012220002111000122100012110&player=2&i=3&j=3'
+true</pre>
           </dd>
         </dl>
     </div>
