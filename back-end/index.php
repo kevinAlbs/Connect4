@@ -29,7 +29,7 @@ class Router {
         //Parse
         //Data can be POST/GET. Just numeric digits, no separators
         $len = strlen($raw_board_data);
-        if (!($len == 7*7 || $len = 6*7) || !preg_match('/^[012]+$/', $raw_board_data)) {
+        if (!($len == 7*7 || $len == 6*7) || !preg_match('/^[012]+$/', $raw_board_data)) {
             throw new InvalidArgumentException("Invalid board data given. Expected string of 42 or 49 characters (got $len). Characters must be 0 (for space), 1 (for player 1), and 2 (for player 2).");
         }
         $board = array_chunk(str_split($raw_board_data), 7);
