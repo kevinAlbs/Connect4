@@ -2,17 +2,13 @@
 // Run test with: `php -f TestCorrect.php.
 require_once("C4AI.php");
 
-function testWorks(){
+function testWorks($nrows=7){
+	printf ("Testing with $nrows rows\n");
 	// Test playing an entire game.
-	$board = array(
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0),
-		array(0, 0, 0, 0, 0, 0, 0)
-	);
+	$board = array();
+	for ($i = 0; $i < $nrows; $i++) {
+		$board[$i] = array(0,0,0,0,0,0,0);
+	}
 	$ai = C4AI::getInstance();
 	for ($moveIter = 0; $moveIter < 100; $moveIter++) {
 		$player = 2;
@@ -36,7 +32,7 @@ function testWorks(){
 		// Check if the board is won.
 		$moveJ = $bestMove;
 		$moveI = 0;
-		for ($i = 0; $i < 7; $i++) {
+		for ($i = 0; $i < $nrows; $i++) {
 			if ($board[$i][$moveJ] != 0) {
 				$moveI = $i;
 				break;
@@ -53,5 +49,17 @@ function testWorks(){
 	}
 }
 
-testWorks();
-printf ("Tests passed");
+// Set error handler to throw on warnings (e.g. "Undefined array key")
+function errHandle($errNo, $errStr, $errFile, $errLine) {
+    $msg = "$errStr in $errFile on line $errLine";
+    if ($errNo == E_NOTICE || $errNo == E_WARNING) {
+        throw new ErrorException($msg, $errNo);
+    } else {
+        echo $msg;
+    }
+}
+
+set_error_handler('errHandle');
+testWorks(7); // 7 rows.
+testWorks(6); // 6 rows.
+printf ("Tests passed\n");
