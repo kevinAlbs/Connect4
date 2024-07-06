@@ -59,4 +59,3 @@ try {
     printf("To view more information visit <a href='%s'>%s</a>", "info.html", "the documentation page");
 }
 
-?>
