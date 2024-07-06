@@ -6,7 +6,6 @@ define("MAX_DEPTH", 5);//Depending on machine's speed, 5 or 6 is a reasonable bo
  */
 class C4AI{
 	private $a, $b;
-    private $bestMove = NULL;//integer 0-6
     private $allMoves = array();
 	private $ref = array();//Map between column and current index of top SPACE (so if column i is empty, ref[i] = 6
 	private $score = 0;
@@ -95,9 +94,6 @@ class C4AI{
 			if($max == NULL || $val > $max){
 				$max = $val;
 				$alpha = $val;
-				if($depth == 0){
-					$this->bestMove = $i;//only interested in the actual best move for depth 0
-				}
 			}
 			if($won){ break; }
 			if($alpha > $beta && $depth != 0){
