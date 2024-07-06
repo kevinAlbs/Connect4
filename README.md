@@ -7,4 +7,4 @@ See a live demo here: [http://kevinalbs.com/connect4/](http://kevinalbs.com/conn
 
 ![Animation showing Connect 4 demo](./img/demo.gif)
 
-The [API](http://kevinalbs.com/connect4/back-end/) accepts a board state and replies with a list of moves and scores. The scores are calculated using a minimax algorithm and a heuristic.
+The [API](http://kevinalbs.com/connect4/back-end/info.html) accepts a board state and replies with a list of moves and scores. The scores are calculated using a minimax algorithm and a heuristic.
