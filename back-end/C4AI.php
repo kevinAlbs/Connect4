@@ -7,7 +7,7 @@ define("MAX_DEPTH", 5);//Depending on machine's speed, 5 or 6 is a reasonable bo
 class C4AI{
 	private $a, $b;
     private $allMoves = array();
-	private $ref = array();//Map between column and current index of top SPACE (so if column i is empty, ref[i] = 6
+	private $ref = array(); // `ref` maps column to row of top space. If column i is empty, ref[i] = ($this->nrows - 1).
 	private $score = 0;
 	private static $instance = NULL;
 	private function __construct(){}
@@ -22,14 +22,15 @@ class C4AI{
 		$min = NULL;
 		$won = false;
 		$beta = INF;
-		for($i = 0; $i < 7; $i++){
-			if($board[0][$i] != 0){
+		$ncols = 7;
+		for($j = 0; $j < $ncols; $j++){
+			if($board[0][$j] != 0){
 				//entire column filled
 				continue;
 			}
 			//apply move, calculate the max for the next state
-			$this->doMove($board, $i, $this->b);
-			if($this->hasWon($board, $this->ref[$i]+1, $i, $this->b)){
+			$this->doMove($board, $j, $this->b);
+			if($this->hasWon($board, $this->ref[$j]+1, $j, $this->b)){
 				$val = -10000 + $depth;
 				$won = true;
 			}
@@ -39,7 +40,7 @@ class C4AI{
 			else{
 				$val = $this->max($board, $depth+1, $alpha, $beta);
 			}
-			$this->undoMove($board, $i, $this->b);
+			$this->undoMove($board, $j, $this->b);
 			if($min == NULL || $val < $min){
 				$min = $val;
 				$beta = $val;
@@ -68,15 +69,16 @@ class C4AI{
 		$max = NULL;
 		$won = false;
 		$alpha = -1 * INF; //we want to set the alpha on this level, not based on previous alpha
-		for($i = 0; $i < 7; $i++){
+		$ncols = 7;
+		for($j = 0; $j < $ncols; $j++){
 			//printf("Max d%d, a%d, b%d\n", $depth, $alpha, $beta);
-			if($board[0][$i] != 0){
+			if($board[0][$j] != 0){
 				//entire column filled
 				continue;
 			}
 			//apply move, calculate the min for this state
-			$this->doMove($board, $i, $this->a);
-			if($this->hasWon($board, $this->ref[$i]+1, $i, $this->a)){
+			$this->doMove($board, $j, $this->a);
+			if($this->hasWon($board, $this->ref[$j]+1, $j, $this->a)){
 				$val = 10000 - $depth; //the longer we have to wait for the win, the less of a good move it is
 				$won = true;
 			}
@@ -87,10 +89,10 @@ class C4AI{
 				$val = $this->min($board, $depth+1, $alpha, $beta);
             }
             if ($depth == 0){
-                $this->allMoves[$i] = $val;
+                $this->allMoves[$j] = $val;
             }
 
-			$this->undoMove($board, $i, $this->a);
+			$this->undoMove($board, $j, $this->a);
 			if($max == NULL || $val > $max){
 				$max = $val;
 				$alpha = $val;
@@ -120,7 +122,8 @@ class C4AI{
     }
 
 	public function undoMove(&$board, $i, $player){
-		if($this->ref[$i] > 6 || $board[$this->ref[$i]+1][$i] != $player){
+		$nrows = sizeof ($board);
+		if($this->ref[$i] > ($nrows - 1) || $board[$this->ref[$i]+1][$i] != $player){
 			throw new Exception("Cannot undo move, unexpected player");
 		}
 		$board[$this->ref[$i]+1][$i] = 0;
@@ -131,6 +134,7 @@ class C4AI{
 	 * jStart is the column of the move just made, so ref[jStart] points just above
 	 */
 	public function hasWon(&$board, $iStart, $jStart, $player){
+		$nrows = sizeof ($board);
 		//check horizontal
 		$hCount = 1;
 		$i = $iStart;
@@ -162,7 +166,7 @@ class C4AI{
 			$i--;
 		}
 		$i = $iStart+1;
-		while($i < 7){
+		while($i < $nrows){
 			if($board[$i][$j] == $player){
 				$vCount++;
 			}	
@@ -183,7 +187,7 @@ class C4AI{
 		}
 		$i = $iStart+1;
 		$j = $jStart-1;
-		while($i < 7 && $j >= 0){
+		while($i < $nrows && $j >= 0){
 			if($board[$i][$j] == $player){
 				$d1Count++;
 			}	
@@ -205,7 +209,7 @@ class C4AI{
 		}
 		$i = $iStart+1;
 		$j = $jStart+1;
-		while($i < 7 && $j < 7){
+		while($i < $nrows && $j < 7){
 			if($board[$i][$j] == $player){
 				$d2Count++;
 			}	
@@ -238,7 +242,8 @@ class C4AI{
 		$end = false;
 		$i = $iStart;
 		$j = $jStart;
-		while($i < 7 && $j < 7 && $i >= 0 && $j >= 0){
+		$nrows = sizeof ($board);
+		while($i < $nrows && $j < 7 && $i >= 0 && $j >= 0){
 			//printf("i%d,j%d,is%d,js%d\n", $i,$j, $iStep,$jStep);
 			if($board[$i][$j] == 0){
 				if($curPlayer != -1){
@@ -271,7 +276,7 @@ class C4AI{
 				//count r spaces
 				$ip = $i;
 				$jp = $j;//i prime, j prime
-				while($ip < 7 && $jp < 7 && $ip >= 0 && $jp >= 0){
+				while($ip < $nrows && $jp < 7 && $ip >= 0 && $jp >= 0){
 					if($board[$ip][$jp] == 0){
 						$rspaces++;
 					}
@@ -306,12 +311,13 @@ class C4AI{
 		//count number of possible ways to win, place very high value on 2 possibilities to win in 1 move, place highest value on winning
 		$score = 0;
 		$curPlayer = -1;
+		$nrows = sizeof ($board);
 		//go down each column, count number of longest path at top
 		for($j = 0; $j < 7; $j++){
-			if($this->ref[$j] >= -1 && $this->ref[$j] < 6){
+			if($this->ref[$j] >= -1 && $this->ref[$j] < ($nrows - 1)){
 				$pathLength = 0;
 				$curPlayer = $board[$this->ref[$j]+1][$j];
-				for($i = $this->ref[$j]+1; $i < 7; $i++){
+				for($i = $this->ref[$j]+1; $i < $nrows; $i++){
 					if($board[$i][$j] != $curPlayer){
 						break;
 					}
@@ -335,18 +341,18 @@ class C4AI{
 			}
 		}
 		//go through rows
-		for($i = 0; $i < 7; $i++){
+		for($i = 0; $i < $nrows; $i++){
 			$score += $this->scorePath($board, $i, 0, 0, 1);
 		}
 		//go through the diagonals
-		for($i = 3; $i < 7; $i++){
+		for($i = 3; $i < $nrows; $i++){
 			$score += $this->scorePath($board, $i, 0, -1, 1);
 		}
 		for($j = 1; $j <= 3; $j++){
-			$score += $this->scorePath($board, 6, $j, -1, 1);
+			$score += $this->scorePath($board, ($nrows - 1), $j, -1, 1);
 		}
 
-		for($i = 0; $i <= 3; $i++){
+		for($i = 0; $i <= $nrows; $i++){
 			$score += $this->scorePath($board, $i, 0, 1, 1);
 		}
 		for($j = 1; $j <= 3; $j++){
@@ -368,14 +374,20 @@ class C4AI{
 			$this->b = 1;
 		}
 
-		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
-			throw new InvalidArgumentException("Board must be 7x7");	
+		$nrows = sizeof ($board);
+		if ($nrows != 6 && $nrows != 7) {
+			throw new InvalidArgumentException("Board must have 6 or 7 rows (6x7 or 7x7). Got $nrows");
 		}
+		$ncols = sizeof($board[0]);
+		if ($ncols != 7) {
+			throw new InvalidArgumentException("Board must have 7 columns (6x7 or 7x7). Got $ncols");
+		}
+
 		$this->allMoves = array();
 		$this->ref = array(-1,-1,-1,-1,-1,-1,-1);
 		//set up ref (gives index of current top space)
 		for($j = 0; $j < 7; $j++){
-			for($i = 6; $i >= 0; $i--){
+			for($i = $nrows - 1; $i >= 0; $i--){
 				if($board[$i][$j] == 0){
 					$this->ref[$j] = $i;
 					break;
@@ -388,7 +400,8 @@ class C4AI{
     }
 
 	public function printBoard(&$board){
-		for($i = 0; $i < 7; $i++){
+		$nrows = sizeof ($board);
+		for($i = 0; $i < $nrows; $i++){
 			for($j = 0; $j < 7; $j++){
 				printf("%d ", $board[$i][$j]);
 			}
