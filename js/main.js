@@ -11,34 +11,37 @@ if (window.location.hostname.indexOf("kevinalbs.com") !== -1) {
  * There is duplicated logic here as in the API, e.g. win checking.
  * However, it reduces requests made.
  */
-var GAME = (function(){
+var nrows = 6;
+function make_game(){
   var that = {};
   var board = [];
   var ref = [];
   var cur_player = 1, winning_player = -1;
   var winning_pieces = [];
     //initialize board
-    for(var i = 0; i < 7; i++){
-        ref[i] = 6;//should be ref[col] but deal with it
-        board[i] = [];
-        for(var j = 0; j < 7; j++){
-          board[i][j] = 0;
-        }
+    for(var i = 0; i < nrows; i++){
+      board[i] = [];
+      for(var j = 0; j < 7; j++){
+        board[i][j] = 0;
       }
+    }
+    for (var j = 0; j < 7; j++) {
+      ref[j] = nrows - 1;
+    }
     /* Returns a string of 49 characters representing board
     */
     function flattenedBoard(){
       var str = "";
       for(var i = 0; i < board.length; i++){
-        for(var j = 0; j < board.length; j++){
+        for(var j = 0; j < board[i].length; j++){
           str += board[i][j]; 
         }
       }
       return str;
     }
 
-    function validIndex(i){
-      return i >= 0 && i <= 6;
+    function validIndex(j){
+      return j >= 0 && j <= 6;
     }
 
     function switchPlayer(){
@@ -59,7 +62,7 @@ var GAME = (function(){
       winning_pieces.push({i: iStart, j: jStart});
       var count = 1;
       //check vertical 
-      for(var i = iStart + 1; i < 7; i++){
+      for(var i = iStart + 1; i < nrows; i++){
         if(board[i][jStart] == player){
           count++;
           winning_pieces.push({i : i, j: jStart});
@@ -115,7 +118,7 @@ var GAME = (function(){
       }
 
       //check diagonals
-      for(var j = jStart+1, i = iStart+1; j < 7 && i < 7; i++, j++){
+      for(var j = jStart+1, i = iStart+1; j < 7 && i < nrows; i++, j++){
         if(board[i][j] == player) {
           count++;
           winning_pieces.push({i : i, j: j});
@@ -143,7 +146,7 @@ var GAME = (function(){
       }
 
       //check diagonals
-      for(var j = jStart-1, i = iStart+1; j >= 0 && i < 7; i++, j--){
+      for(var j = jStart-1, i = iStart+1; j >= 0 && i < nrows; i++, j--){
         if(board[i][j] == player) {
           count++;
           winning_pieces.push({i : i, j: j});
@@ -238,7 +241,37 @@ var GAME = (function(){
         that.GAME_TYPE = settings.GAME_TYPE;
       }
       return that;
-    }());
+    };
+var GAME=make_game();
+
+// Test playing a game.
+{
+  function assertBoardEqual (game, expect) {
+    var board = game.getBoard ();
+    var got = "";
+    for (var i = 0; i < board.length; i++) {
+      for (var j = 0; j < board[i].length; j++) {
+        got += board[i][j];
+      }
+      got += "\n";
+    }
+    if (got != expect) {
+      console.error("Assert failed on board\nExpected:\n" + expect + "Got:\n" + got + "\n");
+    }
+  }
+  const testGame = make_game();
+  // Test a full play through.
+  {
+    assertBoardEqual (testGame, 
+      "0000000\n" +
+      "0000000\n" +
+      "0000000\n" +
+      "0000000\n" +
+      "0000000\n" +
+      "0000000\n"
+    );
+  }
+}
 
 var UI = (function(){ 
   var boardLocked = false;

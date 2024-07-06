@@ -21,10 +21,10 @@ h1{
 #board{
   position: relative;
   width: 158px;
-  height: 151px;
+  height: 130px;
   padding-left: 2px;
   padding-top: 3px;
-  background: url("img/board.jpg") no-repeat;
+  background: url("img/board6x7.jpg") no-repeat;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -34,7 +34,7 @@ h1{
 }
 #board .col{
   width: 22px;
-  height: 146px;
+  height: 125px;
   float: left;
   position: relative;
   
@@ -72,9 +72,6 @@ h1{
 
 #board.unlocked .col:hover .arrow{
   display: block;
-}
-footer{
-  margin-top: 3em;
 }
 footer p, footer a{
   font-size: 10px;
