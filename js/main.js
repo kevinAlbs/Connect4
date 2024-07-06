@@ -2,6 +2,10 @@ var CONFIG = {
   endpoint : "http://localhost/connect4/back-end/index.php/",
 };
 
+if (window.location.hostname.indexOf("kevinalbs.com") !== -1) {
+  CONFIG.endpoint = "https://kevinalbs.com/connect4/back-end/index.php/";
+}
+
 /* Module for game logic + API calls
  *
  * There is duplicated logic here as in the API, e.g. win checking.
