@@ -113,21 +113,21 @@ class C4AI{
 	}
 
 	//helpers
-	public function doMove(&$board, $i, $player){
-		if($this->ref[$i] < 0){
+	public function doMove(&$board, $j, $player){
+		if($this->ref[$j] < 0){
 			throw new Exception("Cannot make move");
 		}
-		$board[$this->ref[$i]][$i] = $player;
-		$this->ref[$i] = $this->ref[$i] - 1;
+		$board[$this->ref[$j]][$j] = $player;
+		$this->ref[$j] = $this->ref[$j] - 1;
     }
 
-	public function undoMove(&$board, $i, $player){
+	public function undoMove(&$board, $j, $player){
 		$nrows = sizeof ($board);
-		if($this->ref[$i] > ($nrows - 1) || $board[$this->ref[$i]+1][$i] != $player){
+		if($this->ref[$j] > ($nrows - 1) || $board[$this->ref[$j]+1][$j] != $player){
 			throw new Exception("Cannot undo move, unexpected player");
 		}
-		$board[$this->ref[$i]+1][$i] = 0;
-		$this->ref[$i] = $this->ref[$i] + 1;
+		$board[$this->ref[$j]+1][$j] = 0;
+		$this->ref[$j] = $this->ref[$j] + 1;
     }
 
 	/* Checks whether the most recent simulated move results in the player winning
