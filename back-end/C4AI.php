@@ -391,11 +391,6 @@ class C4AI{
         return $this->allMoves;
     }
 
-    public function findBestMove(&$board, $mainPlayer){
-        findAllMoves($board, $mainPlayer);
-		return $this->bestMove;
-    }
-
 	public function printBoard(&$board){
 		for($i = 0; $i < 7; $i++){
 			for($j = 0; $j < 7; $j++){
