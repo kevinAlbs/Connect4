@@ -16,8 +16,7 @@ class C4AI{
 		if(C4AI::$instance == NULL){
 			C4AI::$instance = new C4AI();
 		}
-		return C4AI::$instance;
-	}
+		return C4AI::$instance;	}
 
 
 	private function min(&$board, $depth, $alpha, $beta){
@@ -376,6 +375,7 @@ class C4AI{
 		if(sizeof($board) != 7 || sizeof($board[0]) != 7){
 			throw new InvalidArgumentException("Board must be 7x7");	
 		}
+		$this->allMoves = array();
 		$this->ref = array(-1,-1,-1,-1,-1,-1,-1);
 		//set up ref (gives index of current top space)
 		for($j = 0; $j < 7; $j++){
