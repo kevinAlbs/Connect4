@@ -226,9 +226,6 @@ class C4AI{
 		}
 
 	}
-	private function scoreDiff(&$board, $i, $j, $player){
-
-	}
 	private function playerWeight($player){
 		return $player == $this->a ? 1 : -1;
     }
