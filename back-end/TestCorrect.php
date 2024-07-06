@@ -88,4 +88,20 @@ function assertEqual($a, $b) {
 	$got = $ai->hasWon($board, 6, 2, 2);
 	assertEqual($got, false);
 }
+
+// Test scoring for a 6x7 board.
+{
+	$board = array(
+		array(0,0,0,0,0,0,0),
+		array(0,0,0,2,0,0,0),
+		array(0,0,0,1,2,0,0),
+		array(0,0,0,2,1,0,0),
+		array(0,0,0,2,1,0,0),
+		array(1,0,1,2,1,0,0),
+	);
+	$ai = C4AI::getInstance();
+	$got = $ai->findAllMoves($board, 2);
+	assertEqual($got, [0 => 11, 1 => 11, 2 => 13, 3 => 13, 4 => 12, 5 => 12, 6 => 12]);
+}
+
 printf ("Tests passed\n");
